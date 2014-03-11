@@ -1,0 +1,10 @@
+{
+    "name": "mobile-screen-pair",
+    "version": "0.0.1",
+    "description": "A test to for pairing a mobile phone and a screen",
+    "dependencies": {
+        "socket.io": "latest",
+        "express": "3.4.4"
+    },
+    "author": "Tom Meulendijks"
+}

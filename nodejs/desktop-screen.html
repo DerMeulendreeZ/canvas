@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>The desktop site</title>
+	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
+	<script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+        	        	
+            window.onload = function() {
+            
+                var socket = io.connect('http://84.30.87.53:8000');
+                 
+				socket.emit('hello', {interface: 'desktop'} );
+				socket.on('hi-back', function(data){
+					
+					document.getElementById('codeholder').innerHTML = data.code;
+					
+				});
+				
+				socket.on('mobile-device-connected', function(data){
+					
+					document.getElementById('codeholder').style.display = 'none';
+					document.getElementById('instruction').innerHTML = 'Mobile device connected!';
+					
+				});
+				
+				socket.on('event-happend', function(data){
+					document.getElementById('eveninfo').innerHTML = 'Event: '+ data.theevent;
+					document.getElementById('eveninfo').innerHTML += '<br />Info: '+ data.info;
+				});
+				
+            }
+            
+        </script>
+
+</head>
+<body>
+	<div id="container">
+		<h1>Connect your mobile phone</h1>
+		<p id="instruction">Enter code below on you phone</p>
+		<div id="codeholder">
+			
+		</div>
+		<div id="eveninfo">
+			
+		</div>
+	</div>
+</body>
+</html>

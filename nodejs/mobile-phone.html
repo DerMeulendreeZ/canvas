@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>The mobile site</title>
+	 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
+	<script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+        	        	
+            window.onload = function() {
+            	
+            	var socket = io.connect('http://84.30.87.53:8000');
+            	
+            	document.getElementById('submit').onclick = function(e){
+            		
+            		code = document.getElementById('codeholder').value.toUpperCase();
+            		 
+					socket.emit('mobile-device-connected', {interface: 'mobile-device', code: code} );
+					
+					socket.on('pair-initiated', function(data){
+						
+						document.getElementById('codeholder').style.display = 'none';
+						document.getElementById('instruction').innerHTML = 'Yay pair initiated!';
+						
+					});
+					
+				}
+				
+			
+				window.addEventListener("orientationchange", function(e) {
+				
+					socket.emit('event-happend', {theevent: 'orientationchange', info: window.orientation} );
+					
+				}, false);
+				
+				window.addEventListener("touchstart", function(e) {
+				
+					socket.emit('event-happend', {theevent: 'touchstart', info: 'Finger coords(x,y) ' + e.pageX + ',' + e.pageY} );
+					
+				}, false);
+				
+            }
+            
+        </script>
+
+</head>
+<body>
+	<div id="container">
+		<h1>Connect to the screen</h1>
+		<p id="instruction">Enter desktopcode below</p>
+		<input id="codeholder" value="" />
+		<br />
+		<input type="submit" id="submit" value="verzenden" />
+	</div>
+</body>
+</html>

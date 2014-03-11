@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>Slideshow maker</title>
+	<style type="text/css">
+		body {background: #444; color: #fff; font-family: Arial;}
+		canvas {overflow: hidden; max-width: 800px; max-height: 551px;}
+		form {float: left; margin-right: 30px;}
+		form label	{display: block; margin-bottom: 5px;}
+		form input[type=text],
+		form textarea {border:0; height:40px; width:300px;}
+		form textarea {height: 300px;}
+		form textarea#title {height: 100px;} 
+		a		{color: #fff;}
+	</style>
+</head>
+<body>
+	<form id="info">
+		<p>
+			<label>Titel</label>
+			<textarea type="text" name="title" id="title">test</textarea>
+		</p>
+		<p>
+			<label>Prijs</label>
+			<input type="text" name="prijs" id="prijs" value="9,50" />
+		</p>
+		<p>
+			<label>Beschrijving</label>
+			<textarea type="text" name="beschrijving" id="beschrijving"></textarea>
+		</p>
+		<p>
+			<label>Plaatje</label>
+			<input type="file" accept="image/x-png, image/gif, image/jpeg" name="image" id="image" onChange="displayImage(this)" />
+		</p>
+	</form>
+	<canvas id="canvas" width="800" height="551"></canvas>
+	<a id="download">download</a>
+	<script type="text/javascript">
+		
+		var c = byId('canvas');
+		var ctx = c.getContext('2d');
+		var imageLoaded = false;
+		var imgHolder = byId('img_keeper');
+		var mainImage;
+		var tempCavans = document.createElement('canvas');
+		tempCavans.width = 800;
+		tempCavans.height = 551;
+		var titleLineHeight = 28;
+		var beschrijvingLineHeight = 18;
+		var prijsLineHeight = 38;
+		
+		console.dir(tempCavans);
+		
+		function draw(){
+			
+			ctx.clearRect(0,0,800,551);
+			
+			
+			achtergroundPlaatje();
+			balkLinks()
+			setTimeout(draw, 30);
+		}
+		draw();
+		
+		
+		function balkLinks(){
+			
+			var title = byId('title').value;
+			var prijs = byId('prijs').value;
+			var beschrijving = byId('beschrijving').value;
+		
+			ctx.fillStyle = 'rgba(0,0,0,0.5)';
+			ctx.fillRect(0, 0, 200, 551);
+			
+			ctx.font="22px Arial";
+			ctx.fontWeight="bold"
+			ctx.fillStyle = '#fff';
+			var start = 30;
+			
+			title = title.replace( /\n/g, "|" );
+		
+			if(title.indexOf('|') > 0){
+				var titleArray = title.split('|');
+					for(var i = 0; titleArray.length>i; i++){
+						ctx.fillText(titleArray[i],20,start);
+						start += titleLineHeight;
+					}
+			}else{
+				ctx.fillText(title,20,start);
+			}
+			
+			ctx.font="32px Arial";
+			ctx.fillStyle = '#fff';
+			
+			start+=prijsLineHeight;
+			
+			ctx.fillText(prijs,20,start, 110);
+			
+			start+=titleLineHeight;
+			
+			beschrijving = beschrijving.replace( /\n/g, "|" );
+			ctx.font="14px Arial";
+			ctx.fillStyle = '#fff';
+			
+			if(beschrijving.indexOf('|') > 0){
+				var titleArray = beschrijving.split('|');
+					for(var i = 0; titleArray.length>i; i++){
+						ctx.fillText(titleArray[i],20,start);
+						start += beschrijvingLineHeight;
+					}
+			}else{
+				ctx.fillText(beschrijving,20,start);
+			}
+			
+			
+			
+			
+		}
+		 
+		 byId('download').onclick = function(){
+		 	downloadCanvas(this, 'canvas', 'slide.png')
+		 }
+		 
+		 function achtergroundPlaatje(){
+		 	//console.log(tempCavans);
+		 	if(imageLoaded){
+				ctx.drawImage(tempCavans, 0,0, 800, 551);
+		 	 }
+		 }
+		 
+		 function displayImage(input){
+		 	 var file = input.files[0];
+           
+	
+	        var reader = new FileReader();
+	        
+	        reader.onload = function(e){
+		        var tempctx = tempCavans.getContext('2d');
+				var img = new Image;
+			
+				console.log(input.files[0]);
+				img.src = e.target.result;
+				img.onload = function() {
+				    //document.body.appendChild(tempCavans);
+				    tempctx.drawImage(img, 0,0,800,551);
+				    imageLoaded = true;
+				}
+	        };
+	        reader.readAsDataURL(file);  
+	           
+		 	
+			
+		}
+		
+		function downloadCanvas(link, canvasId, filename) {
+		    link.href = document.getElementById(canvasId).toDataURL();
+		    link.download = filename;
+		}
+		
+		function byId(id){
+			return document.getElementById(id);
+		}
+		
+	</script>
+</body>
+</html>

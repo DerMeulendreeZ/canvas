@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style type="text/css">
+		canvas, video{
+			position: absolute; top:0px; left: 0px;
+		}
+		video{opacity: 0;}
+	</style>
+</head>
+<body>
+	
+	<video id="v" width="640" height="480"></video>
+	<canvas id="c" width="640" height="480"></canvas>
+	
+	<script type="text/javascript">
+
+	
+			
+	document.addEventListener('DOMContentLoaded', function(){
+	    var v = document.getElementById('v');
+	    var canvas = document.getElementById('c');
+	    var context = canvas.getContext('2d');
+	    var back = document.createElement('canvas');
+	    var backcontext = back.getContext('2d');
+	    
+	    videoObj = { "video": true },
+			errBack = function(error) {
+				console.log("Video capture error: ", error.code); 
+			};
+		
+	    
+	    // Put video listeners into place
+		if(navigator.getUserMedia) { // Standard
+			navigator.getUserMedia(videoObj, function(stream) {
+				v.src = stream;
+				v.play();
+			}, errBack);
+		} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+			navigator.webkitGetUserMedia(videoObj, function(stream){
+				v.src = window.webkitURL.createObjectURL(stream);
+				v.play();
+			}, errBack);
+		}
+		else if(navigator.mozGetUserMedia) { // Firefox-prefixed
+			navigator.mozGetUserMedia(videoObj, function(stream){
+				v.src = window.URL.createObjectURL(stream);
+				v.play();
+			}, errBack);
+		}
+
+	
+	    var cw,ch;
+	
+	    v.addEventListener('play', function(){
+	        cw = v.clientWidth;
+	        ch = v.clientHeight;
+	        canvas.width = cw;
+	        canvas.height = ch;
+	        back.width = cw;
+	        back.height = ch;
+	        draw(v,context,backcontext,cw,ch);
+	    },false);
+	    
+	    v.play();
+	
+	},false);
+	
+	var data2 = [];
+	var firstrun = true;
+	var pixelsMoved;
+	
+	function draw(v,c,bc,w,h) {
+	    if(v.paused || v.ended) return false;
+	    // First, draw it into the backing canvas
+	    bc.drawImage(v,0,0,w,h);
+	    // Grab the pixel data from the backing canvas
+	    var idata = bc.getImageData(0,0,w,h);
+	    var data = idata.data;
+	   
+	    var tempdata = data;
+	    
+	    // Loop through the pixels, turning them grayscale
+	    for(var i = 0; i < data.length; i+=4) {
+	    
+	    	   var r = data[i];
+		        var g = data[i+1];
+		        var b = data[i+2];
+		        
+		        if(data[i] != data2[i]){
+		        	var brightness = 230;
+		        	tempdata.used = 1;
+		        }else{
+		        	var brightness = 0;	
+		        }
+		        
+		        if(data2[i] && data2[i].used){
+		        	if(data2[i].used < 1000){
+		        		var brightness = 0;
+		        	}else{
+		        		tempdata.used = 0;
+		        		var brightness = 230;
+		        	}
+		        }
+		        
+		        data[i] = brightness;
+		        data[i+1] = brightness;
+		        data[i+2] = brightness;
+	        
+	    }
+	    
+	    data2 = tempdata;
+	    
+	    idata.data = data;
+	    // Draw the pixels onto the visible canvas
+	    c.putImageData(idata,0,0);
+	    
+	    previosData = tempdata;
+	    
+	    // Start over!
+	    setTimeout(function(){ draw(v,c,bc,w,h); }, 30);
+	}
+
+
+		
+	</script>
+</body>
+</html>
